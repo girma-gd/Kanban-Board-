@@ -4,23 +4,25 @@ import TaskCard from "./components/TaskCard";
 
 function App() {
   const tasks = [
-    {
-      id: 1,
-      title: "Learn React",
-      description: "Study components and JSX",
-    },
-    {
-      id: 2,
-      title: "Practice CSS",
-      description: "Build the Kanban layout",
-    },
-    {
-      id: 3,
-      title: "Build a project",
-      description: "Create a real React application",
-    },
-  ];
-
+  {
+    id: 1,
+    title: "Learn React",
+    description: "Study components and JSX",
+    status: "todo",
+  },
+  {
+    id: 2,
+    title: "Practice CSS",
+    description: "Build the Kanban layout",
+    status: "todo",
+  },
+  {
+    id: 3,
+    title: "Build a project",
+    description: "Create a real React application",
+    status: "in-progress",
+  },
+];
   return (
     <div className="app">
       <h1>Kanban Board</h1>
