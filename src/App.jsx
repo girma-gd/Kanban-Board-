@@ -32,11 +32,17 @@ function App() {
   ]);
 
   function handleAddTask(newTask) {
-    setTasks((currentTasks) => [
-      ...currentTasks,
-      newTask,
+      setTasks((currentTasks) => [
+          ...currentTasks,
+          newTask,
     ]);
   }
+
+ function handleDeleteTask(taskId) {
+     setTasks((currentTasks) =>
+    currentTasks.filter((task) => task.id !== taskId)
+  );
+    }
 
 
   const todoTasks = tasks.filter((task) => task.status === "todo");
@@ -62,6 +68,7 @@ function App() {
               key={task.id}
               title={task.title}
               description={task.description}
+              onDelete={() => handleDeleteTask(task.id)}
             />
           ))}
         </div>
@@ -74,6 +81,7 @@ function App() {
               key={task.id}
               title={task.title}
               description={task.description}
+              onDelete={() => handleDeleteTask(task.id)}
             />
           ))}
         </div>
@@ -86,6 +94,7 @@ function App() {
               key={task.id}
               title={task.title}
               description={task.description}
+              onDelete={() => handleDeleteTask(task.id)}
             />
           ))}
         </div>

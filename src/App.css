@@ -97,3 +97,17 @@ body {
 .add-task-form button:hover {
   background: #444;
 }
+
+.delete-button {
+  margin-top: 12px;
+  padding: 7px 12px;
+  border: none;
+  border-radius: 5px;
+  background: #dc3545;
+  color: white;
+  cursor: pointer;
+}
+
+.delete-button:hover {
+  background: #b02a37;
+}
