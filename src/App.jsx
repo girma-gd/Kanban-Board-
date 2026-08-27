@@ -1,8 +1,10 @@
 import "./App.css";
+import { useState } from "react";
+import AddTask from "./components/AddTask";
 import TaskCard from "./components/TaskCard";
 
 function App() {
-  const tasks = [
+  const [tasks, setTasks] = useState([
     {
       id: 1,
       title: "Learn React",
@@ -27,7 +29,15 @@ function App() {
       description: "Push the project to GitHub",
       status: "done",
     },
-  ];
+  ]);
+
+  function handleAddTask(newTask) {
+    setTasks((currentTasks) => [
+      ...currentTasks,
+      newTask,
+    ]);
+  }
+
 
   const todoTasks = tasks.filter((task) => task.status === "todo");
 
@@ -40,6 +50,7 @@ function App() {
   return (
     <div className="app">
       <h1>Kanban Board</h1>
+      <AddTask onAddTask={handleAddTask} />
 
       <div className="board">
 
