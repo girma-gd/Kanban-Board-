@@ -44,6 +44,21 @@ function App() {
   );
     }
 
+ function handleEditTask(taskId, updatedTask) {
+  setTasks((currentTasks) =>
+    currentTasks.map((task) => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          ...updatedTask,
+        };
+      }
+
+      return task;
+    })
+  );
+ }
+
 
   const todoTasks = tasks.filter((task) => task.status === "todo");
 
@@ -69,6 +84,9 @@ function App() {
               title={task.title}
               description={task.description}
               onDelete={() => handleDeleteTask(task.id)}
+              onEdit={(updatedTask) =>
+  handleEditTask(task.id, updatedTask)
+                }
             />
           ))}
         </div>
@@ -82,6 +100,9 @@ function App() {
               title={task.title}
               description={task.description}
               onDelete={() => handleDeleteTask(task.id)}
+              onEdit={(updatedTask) =>
+  handleEditTask(task.id, updatedTask)
+                }
             />
           ))}
         </div>
@@ -95,6 +116,9 @@ function App() {
               title={task.title}
               description={task.description}
               onDelete={() => handleDeleteTask(task.id)}
+              onEdit={(updatedTask) =>
+  handleEditTask(task.id, updatedTask)
+              }
             />
           ))}
         </div>
