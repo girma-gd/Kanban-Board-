@@ -38,13 +38,13 @@ function App() {
     ]);
   }
 
- function handleDeleteTask(taskId) {
+  function handleDeleteTask(taskId) {
      setTasks((currentTasks) =>
     currentTasks.filter((task) => task.id !== taskId)
-  );
-    }
+     );
+ }
 
- function handleEditTask(taskId, updatedTask) {
+  function handleEditTask(taskId, updatedTask) {
   setTasks((currentTasks) =>
     currentTasks.map((task) => {
       if (task.id === taskId) {
@@ -58,36 +58,39 @@ function App() {
     })
   );
  }
+  function handleMoveTask(taskId, newStatus) {
+  setTasks((currentTasks) =>
+    currentTasks.map((task) => {
+      if (task.id === taskId) {
+        return {
+          ...task,
+          status: newStatus,
+        };
+      }
 
-
-  const todoTasks = tasks.filter((task) => task.status === "todo");
-
-  const inProgressTasks = tasks.filter(
-    (task) => task.status === "in-progress"
+      return task;
+    })
   );
-
+ }
+ 
+  const todoTasks = tasks.filter((task) => task.status === "todo");
+  const inProgressTasks = tasks.filter((task) => task.status === "in-progress");
   const doneTasks = tasks.filter((task) => task.status === "done");
-
   return (
     <div className="app">
       <h1>Kanban Board</h1>
       <AddTask onAddTask={handleAddTask} />
-
       <div className="board">
-
         <div className="column">
           <h2>Todo</h2>
-
           {todoTasks.map((task) => (
             <TaskCard
               key={task.id}
               title={task.title}
               description={task.description}
               onDelete={() => handleDeleteTask(task.id)}
-              onEdit={(updatedTask) =>
-  handleEditTask(task.id, updatedTask)
-                }
-            />
+              onEdit={(updatedTask) => handleEditTask(task.id, updatedTask)}
+              onMove={(newStatus) => handleMoveTask(task.id, newStatus)} />
           ))}
         </div>
 
@@ -100,32 +103,29 @@ function App() {
               title={task.title}
               description={task.description}
               onDelete={() => handleDeleteTask(task.id)}
-              onEdit={(updatedTask) =>
-  handleEditTask(task.id, updatedTask)
+              onEdit={(updatedTask) => handleEditTask(task.id, updatedTask)
                 }
+              onMove={(newStatus) => handleMoveTask(task.id, newStatus)} 
             />
           ))}
         </div>
-
         <div className="column">
           <h2>Done</h2>
-
           {doneTasks.map((task) => (
             <TaskCard
               key={task.id}
               title={task.title}
               description={task.description}
               onDelete={() => handleDeleteTask(task.id)}
-              onEdit={(updatedTask) =>
-  handleEditTask(task.id, updatedTask)
-              }
+              onEdit={(updatedTask) => handleEditTask(task.id, updatedTask)}
+              onMove={(newStatus) => handleMoveTask(task.id, newStatus)}
             />
           ))}
         </div>
-
       </div>
     </div>
   );
+  
 }
 
 export default App;

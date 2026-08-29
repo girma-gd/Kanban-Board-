@@ -1,6 +1,13 @@
 import { useState } from "react";
 
-function TaskCard({ title, description, onDelete, onEdit }) {
+function TaskCard({
+  title,
+  description,
+  status,
+  onDelete,
+  onEdit,
+  onMove,
+}) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
   const [editedDescription, setEditedDescription] = useState(description);
@@ -67,6 +74,26 @@ function TaskCard({ title, description, onDelete, onEdit }) {
         >
           Delete
         </button>
+      </div>
+
+      <div className="move-actions">
+        {status !== "todo" && (
+          <button onClick={() => onMove("todo")}>
+            ← Todo
+          </button>
+        )}
+
+        {status !== "in-progress" && (
+          <button onClick={() => onMove("in-progress")}>
+            → In Progress
+          </button>
+        )}
+
+        {status !== "done" && (
+          <button onClick={() => onMove("done")}>
+            → Done
+          </button>
+        )}
       </div>
     </div>
   );
