@@ -1,7 +1,8 @@
-import "./App.css";
 import { useState } from "react";
+import "./App.css";
+
 import AddTask from "./components/AddTask";
-import TaskCard from "./components/TaskCard";
+import Board from "./components/Board";
 
 function App() {
   const [tasks, setTasks] = useState([
@@ -32,100 +33,76 @@ function App() {
   ]);
 
   function handleAddTask(newTask) {
-      setTasks((currentTasks) => [
-          ...currentTasks,
-          newTask,
+    setTasks((currentTasks) => [
+      ...currentTasks,
+      newTask,
     ]);
   }
 
   function handleDeleteTask(taskId) {
-     setTasks((currentTasks) =>
-    currentTasks.filter((task) => task.id !== taskId)
-     );
- }
+    setTasks((currentTasks) =>
+      currentTasks.filter((task) => task.id !== taskId)
+    );
+  }
 
   function handleEditTask(taskId, updatedTask) {
-  setTasks((currentTasks) =>
-    currentTasks.map((task) => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          ...updatedTask,
-        };
-      }
+    setTasks((currentTasks) =>
+      currentTasks.map((task) => {
+        if (task.id === taskId) {
+          return {
+            ...task,
+            ...updatedTask,
+          };
+        }
 
-      return task;
-    })
-  );
- }
+        return task;
+      })
+    );
+  }
+
   function handleMoveTask(taskId, newStatus) {
-  setTasks((currentTasks) =>
-    currentTasks.map((task) => {
-      if (task.id === taskId) {
-        return {
-          ...task,
-          status: newStatus,
-        };
-      }
+    setTasks((currentTasks) =>
+      currentTasks.map((task) => {
+        if (task.id === taskId) {
+          return {
+            ...task,
+            status: newStatus,
+          };
+        }
 
-      return task;
-    })
+        return task;
+      })
+    );
+  }
+
+  const todoTasks = tasks.filter(
+    (task) => task.status === "todo"
   );
- }
- 
-  const todoTasks = tasks.filter((task) => task.status === "todo");
-  const inProgressTasks = tasks.filter((task) => task.status === "in-progress");
-  const doneTasks = tasks.filter((task) => task.status === "done");
+
+  const inProgressTasks = tasks.filter(
+    (task) => task.status === "in-progress"
+  );
+
+  const doneTasks = tasks.filter(
+    (task) => task.status === "done"
+  );
+
   return (
     <div className="app">
       <h1>Kanban Board</h1>
+
       <AddTask onAddTask={handleAddTask} />
-      <div className="board">
-        <div className="column">
-          <h2>Todo</h2>
-          {todoTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              title={task.title}
-              description={task.description}
-              onDelete={() => handleDeleteTask(task.id)}
-              onEdit={(updatedTask) => handleEditTask(task.id, updatedTask)}
-              onMove={(newStatus) => handleMoveTask(task.id, newStatus)} />
-          ))}
-        </div>
 
-        <div className="column">
-          <h2>In Progress</h2>
-
-          {inProgressTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              title={task.title}
-              description={task.description}
-              onDelete={() => handleDeleteTask(task.id)}
-              onEdit={(updatedTask) => handleEditTask(task.id, updatedTask)
-                }
-              onMove={(newStatus) => handleMoveTask(task.id, newStatus)} 
-            />
-          ))}
-        </div>
-        <div className="column">
-          <h2>Done</h2>
-          {doneTasks.map((task) => (
-            <TaskCard
-              key={task.id}
-              title={task.title}
-              description={task.description}
-              onDelete={() => handleDeleteTask(task.id)}
-              onEdit={(updatedTask) => handleEditTask(task.id, updatedTask)}
-              onMove={(newStatus) => handleMoveTask(task.id, newStatus)}
-            />
-          ))}
-        </div>
-      </div>
+      <Board
+        todoTasks={todoTasks}
+        inProgressTasks={inProgressTasks}
+        doneTasks={doneTasks}
+        onDelete={handleDeleteTask}
+        onEdit={handleEditTask}
+        onMove={handleMoveTask}
+      />
     </div>
   );
-  
 }
 
 export default App;
