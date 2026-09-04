@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./App.css";
+import Header from "./components/Header";
 
 import AddTask from "./components/AddTask";
 import Board from "./components/Board";
@@ -100,19 +101,24 @@ function App() {
 
   return (
     <div className="app">
-      <h1>Kanban Board</h1>
-
+      <Header
+        total={tasks.length}
+        todo={todoTasks.length}
+        inProgress={inProgressTasks.length}
+        done={doneTasks.length}
+      />
+    
       <AddTask onAddTask={handleAddTask} />
-
+    
       <Board
-          todoTasks={todoTasks}
-          inProgressTasks={inProgressTasks}
-          doneTasks={doneTasks}
-          onDelete={handleDeleteTask}
-          onEdit={handleEditTask}
-          onDragStart={handleDragStart}
-          onDrop={handleDrop}
-        />
+        todoTasks={todoTasks}
+        inProgressTasks={inProgressTasks}
+        doneTasks={doneTasks}
+        onDelete={handleDeleteTask}
+        onEdit={handleEditTask}
+        onDragStart={handleDragStart}
+        onDrop={handleDrop}
+      />
     </div>
   );
 }
