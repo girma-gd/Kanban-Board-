@@ -31,6 +31,7 @@ function App() {
       status: "done",
     },
   ]);
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
 
   function handleAddTask(newTask) {
     setTasks((currentTasks) => [
@@ -52,27 +53,37 @@ function App() {
           return {
             ...task,
             ...updatedTask,
-          };
+          }
         }
 
         return task;
       })
     );
   }
+    
+  function handleDragStart(taskId) {
+  setDraggedTaskId(taskId);
+    }
+    
+  function handleDrop(newStatus) {
+  if (draggedTaskId === null) {
+    return;
+  }
 
-  function handleMoveTask(taskId, newStatus) {
-    setTasks((currentTasks) =>
-      currentTasks.map((task) => {
-        if (task.id === taskId) {
-          return {
-            ...task,
-            status: newStatus,
-          };
-        }
+  setTasks((currentTasks) =>
+    currentTasks.map((task) => {
+      if (task.id === draggedTaskId) {
+        return {
+          ...task,
+          status: newStatus,
+        };
+      }
 
-        return task;
-      })
-    );
+      return task;
+    })
+  );
+
+  setDraggedTaskId(null);
   }
 
   const todoTasks = tasks.filter(
@@ -94,13 +105,14 @@ function App() {
       <AddTask onAddTask={handleAddTask} />
 
       <Board
-        todoTasks={todoTasks}
-        inProgressTasks={inProgressTasks}
-        doneTasks={doneTasks}
-        onDelete={handleDeleteTask}
-        onEdit={handleEditTask}
-        onMove={handleMoveTask}
-      />
+          todoTasks={todoTasks}
+          inProgressTasks={inProgressTasks}
+          doneTasks={doneTasks}
+          onDelete={handleDeleteTask}
+          onEdit={handleEditTask}
+          onDragStart={handleDragStart}
+          onDrop={handleDrop}
+        />
     </div>
   );
 }

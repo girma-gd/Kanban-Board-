@@ -6,11 +6,12 @@ function TaskCard({
   status,
   onDelete,
   onEdit,
-  onMove,
+  onDragStart,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
-  const [editedDescription, setEditedDescription] = useState(description);
+  const [editedDescription, setEditedDescription] =
+    useState(description);
 
   function handleSave() {
     if (editedTitle.trim() === "") {
@@ -31,7 +32,9 @@ function TaskCard({
         <input
           type="text"
           value={editedTitle}
-          onChange={(event) => setEditedTitle(event.target.value)}
+          onChange={(event) =>
+            setEditedTitle(event.target.value)
+          }
         />
 
         <textarea
@@ -55,7 +58,11 @@ function TaskCard({
   }
 
   return (
-    <div className="task-card">
+    <div
+      className="task-card"
+      draggable
+      onDragStart={onDragStart}
+    >
       <h3>{title}</h3>
 
       <p>{description}</p>
@@ -75,28 +82,8 @@ function TaskCard({
           Delete
         </button>
       </div>
-
-      <div className="move-actions">
-        {status !== "todo" && (
-          <button onClick={() => onMove("todo")}>
-            ← Todo
-          </button>
-        )}
-
-        {status !== "in-progress" && (
-          <button onClick={() => onMove("in-progress")}>
-            → In Progress
-          </button>
-        )}
-
-        {status !== "done" && (
-          <button onClick={() => onMove("done")}>
-            → Done
-          </button>
-        )}
-      </div>
     </div>
   );
 }
 
-export default TaskCard;
+export default TaskCard;;

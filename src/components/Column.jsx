@@ -1,13 +1,24 @@
 import TaskCard from "./TaskCard";
+
 function Column({
   title,
   tasks,
+  status,
   onDelete,
   onEdit,
-  onMove,
+  onDragStart,
+  onDrop,
 }) {
+  function handleDragOver(event) {
+    event.preventDefault();
+  }
+
   return (
-    <div className="column">
+    <div
+      className="column"
+      onDragOver={handleDragOver}
+      onDrop={() => onDrop(status)}
+    >
       <h2>{title}</h2>
 
       {tasks.map((task) => (
@@ -20,9 +31,7 @@ function Column({
           onEdit={(updatedTask) =>
             onEdit(task.id, updatedTask)
           }
-          onMove={(newStatus) =>
-            onMove(task.id, newStatus)
-          }
+          onDragStart={() => onDragStart(task.id)}
         />
       ))}
     </div>
