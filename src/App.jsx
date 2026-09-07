@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./App.css";
 import Header from "./components/Header";
-
+import TaskFilters from "./components/TaskFilters";
 import AddTask from "./components/AddTask";
 import Board from "./components/Board";
 
@@ -33,7 +33,10 @@ function App() {
     },
   ]);
   const [draggedTaskId, setDraggedTaskId] = useState(null);
-
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+    
   function handleAddTask(newTask) {
     setTasks((currentTasks) => [
       ...currentTasks,
@@ -65,7 +68,33 @@ function App() {
   function handleDragStart(taskId) {
   setDraggedTaskId(taskId);
     }
+
+  const filteredTasks = tasks.filter((task) => {
+      const searchText = search.toLowerCase().trim();
     
+      const matchesSearch =
+        searchText === "" ||
+        task.title.toLowerCase().includes(searchText) ||
+        task.description.toLowerCase().includes(searchText) ||
+        task.labels?.some((label) =>
+          label.toLowerCase().includes(searchText)
+        );
+    
+      const matchesStatus =
+        statusFilter === "all" ||
+        task.status === statusFilter;
+    
+      const matchesPriority =
+        priorityFilter === "all" ||
+        task.priority === priorityFilter;
+    
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPriority
+      );
+    });
+        
   function handleDrop(newStatus) {
   if (draggedTaskId === null) {
     return;
@@ -87,29 +116,50 @@ function App() {
   setDraggedTaskId(null);
   }
 
-  const todoTasks = tasks.filter(
-    (task) => task.status === "todo"
-  );
+  const totalTasks = tasks.length;
 
-  const inProgressTasks = tasks.filter(
-    (task) => task.status === "in-progress"
-  );
+  const totalTodoTasks = tasks.filter(
+      (task) => task.status === "todo"
+    ).length;
+    
+  const totalInProgressTasks = tasks.filter(
+      (task) => task.status === "in-progress"
+    ).length;
+    
+  const totalDoneTasks = tasks.filter(
+      (task) => task.status === "done"
+    ).length;
 
-  const doneTasks = tasks.filter(
-    (task) => task.status === "done"
-  );
+  const todoTasks = filteredTasks.filter(
+      (task) => task.status === "todo"
+    );
+    
+  const inProgressTasks = filteredTasks.filter(
+      (task) => task.status === "in-progress"
+    );
+    
+  const doneTasks = filteredTasks.filter(
+      (task) => task.status === "done"
+    );
 
   return (
     <div className="app">
       <Header
-        total={tasks.length}
-        todo={todoTasks.length}
-        inProgress={inProgressTasks.length}
-        done={doneTasks.length}
-      />
+          total={totalTasks}
+          todo={totalTodoTasks}
+          inProgress={totalInProgressTasks}
+          done={totalDoneTasks}
+     />
     
       <AddTask onAddTask={handleAddTask} />
-    
+      <TaskFilters
+          search={search}
+          setSearch={setSearch}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          priorityFilter={priorityFilter}
+          setPriorityFilter={setPriorityFilter}
+        />
       <Board
         todoTasks={todoTasks}
         inProgressTasks={inProgressTasks}
