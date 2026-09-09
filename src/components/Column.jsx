@@ -13,25 +13,34 @@ function Column({
     event.preventDefault();
   }
 
+  function handleTaskDrop(event, targetTaskId) {
+    event.preventDefault();
+    event.stopPropagation();
+
+    onDrop(status, targetTaskId);
+  }
+
+  function handleColumnDrop(event) {
+    event.preventDefault();
+
+    onDrop(status);
+  }
+
   return (
     <div
       className={`column column-${status}`}
       onDragOver={handleDragOver}
-      onDrop={() => onDrop(status)}
+      onDrop={handleColumnDrop}
     >
       <div className="column-header">
         <div>
           <h2>{title}</h2>
           <p>
-            {tasks.length === 1
-              ? "1 task"
-              : `${tasks.length} tasks`}
+            {tasks.length === 1 ? "1 task" : `${tasks.length} tasks`}
           </p>
         </div>
 
-        <span className="task-count">
-          {tasks.length}
-        </span>
+        <span className="task-count">{tasks.length}</span>
       </div>
 
       <div className="task-list">
@@ -47,12 +56,12 @@ function Column({
               key={task.id}
               title={task.title}
               description={task.description}
-              status={task.status}
+              priority={task.priority}
+              labels={task.labels}
               onDelete={() => onDelete(task.id)}
-              onEdit={(updatedTask) =>
-                onEdit(task.id, updatedTask)
-              }
+              onEdit={(updatedTask) => onEdit(task.id, updatedTask)}
               onDragStart={() => onDragStart(task.id)}
+              onDrop={(event) => handleTaskDrop(event, task.id)}
             />
           ))
         )}

@@ -7,6 +7,7 @@ function TaskCard({
   onDelete,
   onEdit,
   onDragStart,
+  onDrop,
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editedTitle, setEditedTitle] = useState(title);
@@ -62,6 +63,8 @@ function TaskCard({
       className="task-card"
       draggable
       onDragStart={onDragStart}
+      onDragOver={(event) => event.preventDefault()}
+      onDrop={onDrop}
     >
       <h3>{title}</h3>
 

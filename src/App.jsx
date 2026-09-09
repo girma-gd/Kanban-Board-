@@ -119,27 +119,47 @@ function App() {
       );
     });
         
-  function handleDrop(newStatus) {
-  if (draggedTaskId === null) {
-    return;
-  }
-
-  setTasks((currentTasks) =>
-    currentTasks.map((task) => {
-      if (task.id === draggedTaskId) {
-        return {
-          ...task,
+  function handleDrop(newStatus, targetTaskId = null) {
+      if (draggedTaskId === null) return;
+    
+      setTasks((currentTasks) => {
+        const draggedTask = currentTasks.find(
+          (task) => task.id === draggedTaskId
+        );
+    
+        if (!draggedTask) return currentTasks;
+    
+        const remainingTasks = currentTasks.filter(
+          (task) => task.id !== draggedTaskId
+        );
+    
+        const movedTask = {
+          ...draggedTask,
           status: newStatus,
         };
-      }
-
-      return task;
-    })
-  );
+    
+        // Dropped into empty space in a column
+        if (targetTaskId === null) {
+          return [...remainingTasks, movedTask];
+        }
+    
+        const targetIndex = remainingTasks.findIndex(
+          (task) => task.id === targetTaskId
+        );
+    
+        // Target task wasn't found
+        if (targetIndex === -1) {
+          return [...remainingTasks, movedTask];
+        }
+    
+        // Insert the dragged task before the target task
+        remainingTasks.splice(targetIndex, 0, movedTask);
+    
+        return remainingTasks;
+      });
 
   setDraggedTaskId(null);
   }
-
   const totalTasks = tasks.length;
 
   const totalTodoTasks = tasks.filter(
@@ -185,13 +205,13 @@ function App() {
           setPriorityFilter={setPriorityFilter}
         />
       <Board
-        todoTasks={todoTasks}
-        inProgressTasks={inProgressTasks}
-        doneTasks={doneTasks}
-        onDelete={handleDeleteTask}
-        onEdit={handleEditTask}
-        onDragStart={handleDragStart}
-        onDrop={handleDrop}
+          todoTasks={todoTasks}
+          inProgressTasks={inProgressTasks}
+          doneTasks={doneTasks}
+          onDelete={handleDeleteTask}
+          onEdit={handleEditTask}
+          onDragStart={handleDragStart}
+          onDrop={handleDrop}
       />
     </div>
   );
