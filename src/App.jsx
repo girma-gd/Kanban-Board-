@@ -5,6 +5,7 @@ import Header from "./components/Header";
 import TaskFilters from "./components/TaskFilters";
 import AddTask from "./components/AddTask";
 import Board from "./components/Board";
+import TaskDetailsModal from "./components/TaskDetailsModal";
 
 function App() {
   const STORAGE_KEY = "kanban-tasks";
@@ -25,6 +26,7 @@ function App() {
         priority: "high",
         labels: ["Learning"],
         dueDate: "2026-09-15",
+        completedAt: null,
       },
       {
         id: 2,
@@ -34,6 +36,7 @@ function App() {
         priority: "medium",
         labels: ["Frontend", "CSS"],
         dueDate: "2026-09-18",
+        completedAt: null,
       },
       {
         id: 3,
@@ -43,6 +46,7 @@ function App() {
         priority: "high",
         labels: ["Project"],
         dueDate: "2026-09-20",
+        completedAt: null,
       },
       {
         id: 4,
@@ -52,101 +56,199 @@ function App() {
         priority: "low",
         labels: ["Git"],
         dueDate: "2026-09-10",
+        completedAt: new Date().toISOString(),
       },
     ];
   });
 
-  // Save tasks whenever the task list changes
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks));
-  }, [tasks]);
-
-  const [draggedTaskId, setDraggedTaskId] = useState(null);
+  const [draggedTaskId, setDraggedTaskId] =
+    useState(null);
 
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [statusFilter, setStatusFilter] =
+    useState("all");
 
-  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] =
+    useState("all");
 
-  // -----------------------------
+  // Task currently being viewed
+  const [selectedTask, setSelectedTask] =
+    useState(null);
+
+  // Save tasks
+  useEffect(() => {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(tasks)
+    );
+  }, [tasks]);
+
+  // --------------------------------
+  // VIEW TASK
+  // --------------------------------
+
+  function handleViewTask(task) {
+    setSelectedTask(task);
+  }
+
+  function handleCloseTaskDetails() {
+    setSelectedTask(null);
+  }
+
+  // --------------------------------
   // ADD TASK
-  // -----------------------------
+  // --------------------------------
 
   function handleAddTask(newTask) {
+    const taskWithCompletion = {
+      ...newTask,
+      completedAt:
+        newTask.status === "done"
+          ? new Date().toISOString()
+          : null,
+    };
+
     setTasks((currentTasks) => [
       ...currentTasks,
-      newTask,
+      taskWithCompletion,
     ]);
   }
 
-  // -----------------------------
+  // --------------------------------
   // DELETE TASK
-  // -----------------------------
+  // --------------------------------
 
   function handleDeleteTask(taskId) {
     setTasks((currentTasks) =>
-      currentTasks.filter((task) => task.id !== taskId)
+      currentTasks.filter(
+        (task) => task.id !== taskId
+      )
     );
+
+    // If the deleted task is currently open
+    if (selectedTask?.id === taskId) {
+      setSelectedTask(null);
+    }
   }
 
-  // -----------------------------
+  // --------------------------------
   // EDIT TASK
-  // -----------------------------
+  // --------------------------------
 
-  function handleEditTask(taskId, updatedTask) {
+  function handleEditTask(
+    taskId,
+    updatedTask
+  ) {
     setTasks((currentTasks) =>
       currentTasks.map((task) => {
-        if (task.id === taskId) {
-          return {
-            ...task,
-            ...updatedTask,
-          };
+        if (task.id !== taskId) {
+          return task;
         }
 
-        return task;
+        const wasDone =
+          task.status === "done";
+
+        const isNowDone =
+          updatedTask.status === "done";
+
+        let completedAt =
+          task.completedAt || null;
+
+        if (!wasDone && isNowDone) {
+          completedAt =
+            new Date().toISOString();
+        }
+
+        if (wasDone && !isNowDone) {
+          completedAt = null;
+        }
+
+        return {
+          ...task,
+          ...updatedTask,
+          completedAt,
+        };
       })
     );
+
+    // Keep modal information updated
+    setSelectedTask((currentSelectedTask) => {
+      if (!currentSelectedTask) {
+        return null;
+      }
+
+      if (currentSelectedTask.id !== taskId) {
+        return currentSelectedTask;
+      }
+
+      return {
+        ...currentSelectedTask,
+        ...updatedTask,
+      };
+    });
   }
 
-  // -----------------------------
+  // --------------------------------
   // DRAG START
-  // -----------------------------
+  // --------------------------------
 
   function handleDragStart(taskId) {
     setDraggedTaskId(taskId);
   }
 
-  // -----------------------------
+  // --------------------------------
   // DRAG / DROP
-  // -----------------------------
+  // --------------------------------
 
-  function handleDrop(newStatus, targetTaskId = null) {
-    if (draggedTaskId === null) return;
+  function handleDrop(
+    newStatus,
+    targetTaskId = null
+  ) {
+    if (draggedTaskId === null) {
+      return;
+    }
 
     setTasks((currentTasks) => {
-      const draggedTask = currentTasks.find(
-        (task) => task.id === draggedTaskId
-      );
+      const draggedTask =
+        currentTasks.find(
+          (task) =>
+            task.id === draggedTaskId
+        );
 
       if (!draggedTask) {
         return currentTasks;
       }
 
-      // Remove the dragged task from its current position
-      const remainingTasks = currentTasks.filter(
-        (task) => task.id !== draggedTaskId
-      );
+      const remainingTasks =
+        currentTasks.filter(
+          (task) =>
+            task.id !== draggedTaskId
+        );
 
-      // Update the task's status
+      const wasDone =
+        draggedTask.status === "done";
+
+      const isNowDone =
+        newStatus === "done";
+
+      let completedAt =
+        draggedTask.completedAt || null;
+
+      if (!wasDone && isNowDone) {
+        completedAt =
+          new Date().toISOString();
+      }
+
+      if (wasDone && !isNowDone) {
+        completedAt = null;
+      }
+
       const movedTask = {
         ...draggedTask,
         status: newStatus,
+        completedAt,
       };
-
-      // --------------------------------
-      // Drop into empty space
-      // --------------------------------
 
       if (targetTaskId === null) {
         return [
@@ -155,25 +257,18 @@ function App() {
         ];
       }
 
-      // --------------------------------
-      // Find target task
-      // --------------------------------
+      const targetIndex =
+        remainingTasks.findIndex(
+          (task) =>
+            task.id === targetTaskId
+        );
 
-      const targetIndex = remainingTasks.findIndex(
-        (task) => task.id === targetTaskId
-      );
-
-      // Target task doesn't exist
       if (targetIndex === -1) {
         return [
           ...remainingTasks,
           movedTask,
         ];
       }
-
-      // --------------------------------
-      // Insert before target task
-      // --------------------------------
 
       remainingTasks.splice(
         targetIndex,
@@ -187,63 +282,67 @@ function App() {
     setDraggedTaskId(null);
   }
 
-  // -----------------------------
-  // SEARCH + FILTERING
-  // -----------------------------
+  // --------------------------------
+  // FILTERING
+  // --------------------------------
 
-  const filteredTasks = tasks.filter((task) => {
-    const searchText = search
-      .toLowerCase()
-      .trim();
+  const filteredTasks = tasks.filter(
+    (task) => {
+      const searchText = search
+        .toLowerCase()
+        .trim();
 
-    const matchesSearch =
-      searchText === "" ||
-      task.title
-        .toLowerCase()
-        .includes(searchText) ||
-      task.description
-        .toLowerCase()
-        .includes(searchText) ||
-      task.labels?.some((label) =>
-        label
+      const matchesSearch =
+        searchText === "" ||
+        task.title
           .toLowerCase()
-          .includes(searchText)
+          .includes(searchText) ||
+        task.description
+          .toLowerCase()
+          .includes(searchText) ||
+        task.labels?.some((label) =>
+          label
+            .toLowerCase()
+            .includes(searchText)
+        );
+
+      const matchesStatus =
+        statusFilter === "all" ||
+        task.status === statusFilter;
+
+      const matchesPriority =
+        priorityFilter === "all" ||
+        task.priority === priorityFilter;
+
+      return (
+        matchesSearch &&
+        matchesStatus &&
+        matchesPriority
       );
+    }
+  );
 
-    const matchesStatus =
-      statusFilter === "all" ||
-      task.status === statusFilter;
-
-    const matchesPriority =
-      priorityFilter === "all" ||
-      task.priority === priorityFilter;
-
-    return (
-      matchesSearch &&
-      matchesStatus &&
-      matchesPriority
-    );
-  });
-
-  // -----------------------------
-  // COLUMN TASKS
-  // -----------------------------
+  // --------------------------------
+  // COLUMNS
+  // --------------------------------
 
   const todoTasks = filteredTasks.filter(
     (task) => task.status === "todo"
   );
 
-  const inProgressTasks = filteredTasks.filter(
-    (task) => task.status === "in-progress"
-  );
+  const inProgressTasks =
+    filteredTasks.filter(
+      (task) =>
+        task.status === "in-progress"
+    );
 
   const doneTasks = filteredTasks.filter(
     (task) => task.status === "done"
   );
 
-  // -----------------------------
+  // --------------------------------
   // STATISTICS
-  // -----------------------------
+  // --------------------------------
 
   const totalTasks = tasks.length;
 
@@ -251,17 +350,44 @@ function App() {
     (task) => task.status === "todo"
   ).length;
 
-  const totalInProgressTasks = tasks.filter(
-    (task) => task.status === "in-progress"
-  ).length;
+  const totalInProgressTasks =
+    tasks.filter(
+      (task) =>
+        task.status === "in-progress"
+    ).length;
 
   const totalDoneTasks = tasks.filter(
     (task) => task.status === "done"
   ).length;
 
-  // -----------------------------
+  const progressPercentage =
+    totalTasks === 0
+      ? 0
+      : Math.round(
+          (totalDoneTasks / totalTasks) *
+            100
+        );
+
+  // --------------------------------
+  // RECENTLY COMPLETED
+  // --------------------------------
+
+  const recentlyCompleted = tasks
+    .filter(
+      (task) =>
+        task.status === "done" &&
+        task.completedAt
+    )
+    .sort(
+      (a, b) =>
+        new Date(b.completedAt) -
+        new Date(a.completedAt)
+    )
+    .slice(0, 3);
+
+  // --------------------------------
   // RENDER
-  // -----------------------------
+  // --------------------------------
 
   return (
     <div className="app">
@@ -270,6 +396,10 @@ function App() {
         todo={totalTodoTasks}
         inProgress={totalInProgressTasks}
         done={totalDoneTasks}
+        progress={progressPercentage}
+        recentlyCompleted={
+          recentlyCompleted
+        }
       />
 
       <AddTask
@@ -282,7 +412,9 @@ function App() {
         statusFilter={statusFilter}
         setStatusFilter={setStatusFilter}
         priorityFilter={priorityFilter}
-        setPriorityFilter={setPriorityFilter}
+        setPriorityFilter={
+          setPriorityFilter
+        }
       />
 
       <Board
@@ -293,7 +425,15 @@ function App() {
         onEdit={handleEditTask}
         onDragStart={handleDragStart}
         onDrop={handleDrop}
+        onViewTask={handleViewTask}
       />
+
+      {selectedTask && (
+        <TaskDetailsModal
+          task={selectedTask}
+          onClose={handleCloseTaskDetails}
+        />
+      )}
     </div>
   );
 }

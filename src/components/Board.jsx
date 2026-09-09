@@ -8,10 +8,10 @@ function Board({
   onEdit,
   onDragStart,
   onDrop,
+  onViewTask,
 }) {
   return (
     <div className="board">
-      {/* Todo Column */}
       <Column
         title="Todo"
         status="todo"
@@ -20,9 +20,9 @@ function Board({
         onEdit={onEdit}
         onDragStart={onDragStart}
         onDrop={onDrop}
+        onViewTask={onViewTask}
       />
 
-      {/* In Progress Column */}
       <Column
         title="In Progress"
         status="in-progress"
@@ -31,9 +31,9 @@ function Board({
         onEdit={onEdit}
         onDragStart={onDragStart}
         onDrop={onDrop}
+        onViewTask={onViewTask}
       />
 
-      {/* Done Column */}
       <Column
         title="Done"
         status="done"
@@ -42,6 +42,7 @@ function Board({
         onEdit={onEdit}
         onDragStart={onDragStart}
         onDrop={onDrop}
+        onViewTask={onViewTask}
       />
     </div>
   );

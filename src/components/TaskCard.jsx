@@ -10,94 +10,87 @@ function TaskCard({
   onEdit,
   onDragStart,
   onDrop,
+  onViewTask,
 }) {
-  const [isEditing, setIsEditing] = useState(false);
+  const [isEditing, setIsEditing] =
+    useState(false);
 
-  const [editedTitle, setEditedTitle] = useState(title);
+  const [editedTitle, setEditedTitle] =
+    useState(title);
 
   const [editedDescription, setEditedDescription] =
     useState(description);
 
-  const [editedPriority, setEditedPriority] = useState(
-    priority || "medium"
-  );
+  const [editedPriority, setEditedPriority] =
+    useState(priority || "medium");
 
-  const [editedLabels, setEditedLabels] = useState(
-    labels ? labels.join(", ") : ""
-  );
+  const [editedLabels, setEditedLabels] =
+    useState(
+      labels
+        ? labels.join(", ")
+        : ""
+    );
 
-  const [editedDueDate, setEditedDueDate] = useState(
-    dueDate || ""
-  );
-
-  // Check whether the task is overdue
-  const isOverdue =
-    dueDate &&
-    new Date(`${dueDate}T23:59:59`) < new Date();
-
-  // Save edited task
   function handleSave() {
     if (editedTitle.trim() === "") {
       return;
     }
 
-    const updatedLabels = editedLabels
-      .split(",")
-      .map((label) => label.trim())
-      .filter((label) => label !== "");
+    const updatedLabels =
+      editedLabels
+        .split(",")
+        .map((label) =>
+          label.trim()
+        )
+        .filter(
+          (label) => label !== ""
+        );
 
     onEdit({
       title: editedTitle.trim(),
-      description: editedDescription.trim(),
+      description:
+        editedDescription.trim(),
       priority: editedPriority,
       labels: updatedLabels,
-      dueDate: editedDueDate,
     });
 
     setIsEditing(false);
   }
 
-  // Cancel editing
-  function handleCancel() {
-    setEditedTitle(title);
-    setEditedDescription(description);
-    setEditedPriority(priority || "medium");
-    setEditedLabels(
-      labels ? labels.join(", ") : ""
-    );
-    setEditedDueDate(dueDate || "");
+  function handleViewDetails(event) {
+    event.stopPropagation();
 
-    setIsEditing(false);
+    onViewTask();
   }
-
-  // --------------------------------
-  // EDIT MODE
-  // --------------------------------
 
   if (isEditing) {
     return (
       <div className="task-card">
         <input
           type="text"
-          placeholder="Task title"
           value={editedTitle}
           onChange={(event) =>
-            setEditedTitle(event.target.value)
+            setEditedTitle(
+              event.target.value
+            )
           }
         />
 
         <textarea
-          placeholder="Task description"
           value={editedDescription}
           onChange={(event) =>
-            setEditedDescription(event.target.value)
+            setEditedDescription(
+              event.target.value
+            )
           }
         />
 
         <select
           value={editedPriority}
           onChange={(event) =>
-            setEditedPriority(event.target.value)
+            setEditedPriority(
+              event.target.value
+            )
           }
         >
           <option value="low">
@@ -115,35 +108,29 @@ function TaskCard({
 
         <input
           type="text"
-          placeholder="Labels (e.g. Frontend, Bug, Urgent)"
+          placeholder="Labels"
           value={editedLabels}
           onChange={(event) =>
-            setEditedLabels(event.target.value)
+            setEditedLabels(
+              event.target.value
+            )
           }
         />
-
-        <label className="form-label">
-          Due Date
-
-          <input
-            type="date"
-            value={editedDueDate}
-            onChange={(event) =>
-              setEditedDueDate(event.target.value)
-            }
-          />
-        </label>
 
         <div className="task-actions">
           <button
             className="edit-button"
+            type="button"
             onClick={handleSave}
           >
             Save
           </button>
 
           <button
-            onClick={handleCancel}
+            type="button"
+            onClick={() =>
+              setIsEditing(false)
+            }
           >
             Cancel
           </button>
@@ -152,15 +139,14 @@ function TaskCard({
     );
   }
 
-  // --------------------------------
-  // NORMAL MODE
-  // --------------------------------
+  const isOverdue =
+    dueDate &&
+    new Date(`${dueDate}T23:59:59`) <
+      new Date();
 
   return (
     <div
-      className={`task-card ${
-        isOverdue ? "task-overdue" : ""
-      }`}
+      className="task-card"
       draggable
       onDragStart={onDragStart}
       onDragOver={(event) =>
@@ -184,30 +170,32 @@ function TaskCard({
       <p>{description}</p>
 
       {/* Labels */}
-      {labels && labels.length > 0 && (
-        <div className="task-labels">
-          {labels.map((label, index) => (
-            <span
-              className="task-label"
-              key={index}
-            >
-              {label}
-            </span>
-          ))}
-        </div>
-      )}
+      {labels &&
+        labels.length > 0 && (
+          <div className="task-labels">
+            {labels.map(
+              (label, index) => (
+                <span
+                  className="task-label"
+                  key={`${label}-${index}`}
+                >
+                  {label}
+                </span>
+              )
+            )}
+          </div>
+        )}
 
       {/* Due Date */}
       {dueDate && (
         <div
           className={`task-due-date ${
-            isOverdue ? "overdue" : ""
+            isOverdue
+              ? "overdue"
+              : ""
           }`}
         >
-          📅{" "}
-          {isOverdue
-            ? "Overdue"
-            : "Due"}{" "}
+          📅 Due{" "}
           {new Date(
             `${dueDate}T00:00:00`
           ).toLocaleDateString()}
@@ -217,6 +205,15 @@ function TaskCard({
       {/* Actions */}
       <div className="task-actions">
         <button
+          type="button"
+          className="view-button"
+          onClick={handleViewDetails}
+        >
+          View Details
+        </button>
+
+        <button
+          type="button"
           className="edit-button"
           onClick={() =>
             setIsEditing(true)
@@ -226,6 +223,7 @@ function TaskCard({
         </button>
 
         <button
+          type="button"
           className="delete-button"
           onClick={onDelete}
         >
