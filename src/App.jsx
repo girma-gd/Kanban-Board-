@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "./App.css";
 import Header from "./components/Header";
 import TaskFilters from "./components/TaskFilters";
@@ -6,32 +6,56 @@ import AddTask from "./components/AddTask";
 import Board from "./components/Board";
 
 function App() {
-  const [tasks, setTasks] = useState([
+  const STORAGE_KEY = "kanban-tasks";
+  const [tasks, setTasks] = useState(() => {
+  const savedTasks = localStorage.getItem(STORAGE_KEY);
+
+  if (savedTasks) {
+    return JSON.parse(savedTasks);
+  }
+
+  return [
     {
       id: 1,
       title: "Learn React",
       description: "Study components and JSX",
       status: "todo",
+      priority: "high",
+      labels: ["Learning"],
     },
     {
       id: 2,
       title: "Practice CSS",
       description: "Build the Kanban layout",
       status: "todo",
+      priority: "medium",
+      labels: ["Frontend", "CSS"],
     },
     {
       id: 3,
       title: "Build a project",
       description: "Create a real React application",
       status: "in-progress",
+      priority: "high",
+      labels: ["Project"],
     },
     {
       id: 4,
       title: "Setup GitHub",
       description: "Push the project to GitHub",
       status: "done",
+      priority: "low",
+      labels: ["Git"],
     },
-  ]);
+  ];
+});
+  useEffect(() => {
+      localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify(tasks)
+      );
+    }, [tasks]
+  );
   const [draggedTaskId, setDraggedTaskId] = useState(null);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
