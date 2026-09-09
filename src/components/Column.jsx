@@ -9,10 +9,12 @@ function Column({
   onDragStart,
   onDrop,
 }) {
+  // Allow tasks to be dragged over the column
   function handleDragOver(event) {
     event.preventDefault();
   }
 
+  // Handle dropping a task on top of another task
   function handleTaskDrop(event, targetTaskId) {
     event.preventDefault();
     event.stopPropagation();
@@ -20,6 +22,7 @@ function Column({
     onDrop(status, targetTaskId);
   }
 
+  // Handle dropping a task into empty space in the column
   function handleColumnDrop(event) {
     event.preventDefault();
 
@@ -32,23 +35,34 @@ function Column({
       onDragOver={handleDragOver}
       onDrop={handleColumnDrop}
     >
+      {/* Column Header */}
       <div className="column-header">
         <div>
           <h2>{title}</h2>
+
           <p>
-            {tasks.length === 1 ? "1 task" : `${tasks.length} tasks`}
+            {tasks.length === 1
+              ? "1 task"
+              : `${tasks.length} tasks`}
           </p>
         </div>
 
-        <span className="task-count">{tasks.length}</span>
+        <span className="task-count">
+          {tasks.length}
+        </span>
       </div>
 
+      {/* Task List */}
       <div className="task-list">
         {tasks.length === 0 ? (
           <div className="empty-column">
             <span>✓</span>
+
             <p>No tasks here</p>
-            <small>Drag a task here</small>
+
+            <small>
+              Drag a task here
+            </small>
           </div>
         ) : (
           tasks.map((task) => (
@@ -58,6 +72,7 @@ function Column({
               description={task.description}
               priority={task.priority}
               labels={task.labels}
+              dueDate={task.dueDate}
               onDelete={() => onDelete(task.id)}
               onEdit={(updatedTask) => onEdit(task.id, updatedTask)}
               onDragStart={() => onDragStart(task.id)}

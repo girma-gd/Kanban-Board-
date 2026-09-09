@@ -11,6 +11,7 @@ function Board({
 }) {
   return (
     <div className="board">
+      {/* Todo Column */}
       <Column
         title="Todo"
         status="todo"
@@ -21,6 +22,7 @@ function Board({
         onDrop={onDrop}
       />
 
+      {/* In Progress Column */}
       <Column
         title="In Progress"
         status="in-progress"
@@ -31,6 +33,7 @@ function Board({
         onDrop={onDrop}
       />
 
+      {/* Done Column */}
       <Column
         title="Done"
         status="done"
