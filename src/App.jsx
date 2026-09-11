@@ -61,22 +61,25 @@ function App() {
     ];
   });
 
-  const [draggedTaskId, setDraggedTaskId] =
-    useState(null);
+  const [draggedTaskId, setDraggedTaskId] = useState(null);
 
   const [search, setSearch] = useState("");
 
-  const [statusFilter, setStatusFilter] =
-    useState("all");
+  const [statusFilter, setStatusFilter] = useState("all");
 
   const [priorityFilter, setPriorityFilter] =
     useState("all");
 
-  // Task currently being viewed
-  const [selectedTask, setSelectedTask] =
-    useState(null);
+  // Sorting option
+  const [sortBy, setSortBy] = useState("newest");
 
-  // Save tasks
+  // Currently selected task for details modal
+  const [selectedTask, setSelectedTask] = useState(null);
+
+  // --------------------------------
+  // SAVE TASKS
+  // --------------------------------
+
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
@@ -126,7 +129,6 @@ function App() {
       )
     );
 
-    // If the deleted task is currently open
     if (selectedTask?.id === taskId) {
       setSelectedTask(null);
     }
@@ -172,7 +174,6 @@ function App() {
       })
     );
 
-    // Keep modal information updated
     setSelectedTask((currentSelectedTask) => {
       if (!currentSelectedTask) {
         return null;
@@ -283,7 +284,7 @@ function App() {
   }
 
   // --------------------------------
-  // FILTERING
+  // FILTER TASKS
   // --------------------------------
 
   const filteredTasks = tasks.filter(
@@ -323,20 +324,57 @@ function App() {
   );
 
   // --------------------------------
-  // COLUMNS
+  // SORT TASKS
   // --------------------------------
 
-  const todoTasks = filteredTasks.filter(
+  const sortedTasks = [...filteredTasks].sort(
+    (a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return b.id - a.id;
+
+        case "oldest":
+          return a.id - b.id;
+
+        case "priority-high":
+          return (
+            getPriorityValue(b.priority) -
+            getPriorityValue(a.priority)
+          );
+
+        case "priority-low":
+          return (
+            getPriorityValue(a.priority) -
+            getPriorityValue(b.priority)
+          );
+
+        case "due-earliest":
+          return compareDueDates(a, b);
+
+        case "due-latest":
+          return compareDueDates(b, a);
+
+        default:
+          return 0;
+      }
+    }
+  );
+
+  // --------------------------------
+  // COLUMN TASKS
+  // --------------------------------
+
+  const todoTasks = sortedTasks.filter(
     (task) => task.status === "todo"
   );
 
   const inProgressTasks =
-    filteredTasks.filter(
+    sortedTasks.filter(
       (task) =>
         task.status === "in-progress"
     );
 
-  const doneTasks = filteredTasks.filter(
+  const doneTasks = sortedTasks.filter(
     (task) => task.status === "done"
   );
 
@@ -415,6 +453,8 @@ function App() {
         setPriorityFilter={
           setPriorityFilter
         }
+        sortBy={sortBy}
+        setSortBy={setSortBy}
       />
 
       <Board
@@ -435,6 +475,49 @@ function App() {
         />
       )}
     </div>
+  );
+}
+
+// --------------------------------
+// PRIORITY HELPER
+// --------------------------------
+
+function getPriorityValue(priority) {
+  if (priority === "high") {
+    return 3;
+  }
+
+  if (priority === "medium") {
+    return 2;
+  }
+
+  if (priority === "low") {
+    return 1;
+  }
+
+  return 0;
+}
+
+// --------------------------------
+// DUE DATE HELPER
+// --------------------------------
+
+function compareDueDates(a, b) {
+  if (!a.dueDate && !b.dueDate) {
+    return 0;
+  }
+
+  if (!a.dueDate) {
+    return 1;
+  }
+
+  if (!b.dueDate) {
+    return -1;
+  }
+
+  return (
+    new Date(a.dueDate) -
+    new Date(b.dueDate)
   );
 }
 
